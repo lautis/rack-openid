@@ -251,7 +251,7 @@ class TestOpenID < Test::Unit::TestCase
   end
 
   def test_with_immediate_mode_setup_needed
-    @app = app(:identifier => "#{RotsServerUrl}/john.doe?openid.success=false", :immediate => true)
+    @app = app(:identifier => "#{RotsServerUrl}/john.doe", :immediate => true)
     process('/', :method => 'GET')
 
     location = @response.headers['Location']
