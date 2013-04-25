@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.add_dependency "rack", ">=1.1.0"
   s.add_dependency "ruby-openid", ">= 2.1.8"
 
+  s.add_development_dependency "rake"
+
   s.author = "Joshua Peek"
   s.email  = "josh@joshpeek.com"
 end
