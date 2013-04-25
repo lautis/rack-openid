@@ -6,6 +6,7 @@ require 'openid/consumer'
 require 'openid/extensions/sreg'
 require 'openid/extensions/ax'
 require 'openid/extensions/oauth'
+require 'openid/extensions/pape'
 
 module Rack #:nodoc:
   # A Rack middleware that provides a more HTTPish API around the
@@ -124,6 +125,7 @@ module Rack #:nodoc:
           add_simple_registration_fields(oidreq, params)
           add_attribute_exchange_fields(oidreq, params)
           add_oauth_fields(oidreq, params)
+          add_pape_extensions(oidreq, params)
           url = open_id_redirect_url(req, oidreq, params["trust_root"], params["return_to"], params["method"], immediate)
           return redirect_to(url)
         rescue ::OpenID::OpenIDError, Timeout::Error => e
@@ -260,6 +262,21 @@ module Rack #:nodoc:
               (scope = fields['oauth[scope]'])
           oauthreq = ::OpenID::OAuth::Request.new(consumer, Array(scope).join(' '))
           oidreq.add_extension(oauthreq)
+        end
+      end
+
+      def add_pape_extensions(oidreq, fields)
+        max_auth_age = fields['pape[max_auth_age]']
+        auth_policies = fields['pape[preferred_auth_policies]']
+
+
+        if max_auth_age || auth_policies
+          pape = ::OpenID::PAPE::Request.new
+          pape.max_auth_age = max_auth_age.to_i if max_auth_age
+          pape.preferred_auth_policies = auth_policies if auth_policies
+
+          oidreq.add_extension(pape)
+          oidreq.return_to_args['did_pape'] = 'y'
         end
       end
 

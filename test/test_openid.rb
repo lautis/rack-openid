@@ -250,6 +250,16 @@ class TestOpenID < Test::Unit::TestCase
     assert_equal 'success', @response.body
   end
 
+  def test_with_pape
+    @app = app(:'pape[max_auth_age]' => '100', :'pape[preferred_auth_policies]' => ['foo_policy', 'bar_policy'])
+    process('/', :method => 'GET')
+
+    location = @response.headers['Location']
+    assert_match(/openid\.pape\.preferred_auth_policies=foo_policy\+bar_policy/, location)
+    assert_match(/openid\.ns\.pape=/, location)
+    assert_match(/openid\.pape\.max_auth_age=100/, location)
+  end
+
   def test_with_immediate_mode_setup_needed
     @app = app(:identifier => "#{RotsServerUrl}/john.doe?openid.success=false", :immediate => true)
     process('/', :method => 'GET')
